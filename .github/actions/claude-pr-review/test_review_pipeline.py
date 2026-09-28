@@ -221,6 +221,13 @@ class ReviewPipelineTests(unittest.TestCase):
         )
         # prepare (announce), publish, and report (retire on failure).
         self.assertEqual(action.count(identity_env), 3)
+        model_steps = [
+            step for step in action.split("\n    - name:")
+            if "uses: anthropics/claude-code-action@" in step
+        ]
+        self.assertEqual(len(model_steps), 2)
+        for step in model_steps:
+            self.assertIn("github_token: ${{ inputs.github_identity_token }}", step)
         self.assertIn(
             "GH_RESOLVE_THREADS: "
             "${{ inputs.github_identity_token != '' }}",
